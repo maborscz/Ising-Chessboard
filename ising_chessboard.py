@@ -38,7 +38,8 @@ class Lattice:
 
     def monteCarlo(self, steps):
 
-        self.Mlist = [] # ensemble for magnetic susceptibility calcs
+        self.Mlist = [] # ensemble of magnetisations
+        self.Elist = [] # ensemble of energies
 
         for i in range(steps):
             prob = np.exp(2 * self.energy/self.T) # flipping probability for each atom
@@ -54,11 +55,13 @@ class Lattice:
             self.array[np.where(mask1 * mask2)] *= -1
             self.energy = self.latticeEnergy() # calculate energies of new lattice
 
-            # create list of magnetisations for last tenth of iterations
+            # create list of magnetisations and energies for last tenth of iterations
             if steps - i <= (steps // 10):
                 self.Mlist.append(np.sum(self.array))
+                self.Elist.append(np.sum(self.energy))
         
         self.Mlist = np.array(self.Mlist)
+        self.Elist = np.array(self.Elist)
 
 
 class Plots:
@@ -92,10 +95,10 @@ class Plots:
             L.monteCarlo(self.steps) 
 
             if var == 'mag':
-                self.data.append(np.abs(np.mean(L.array)))
+                self.data.append(np.abs(np.mean(L.Mlist)) / self.N**2)
                 self.labely = 'Magnetization per atom'
             elif var == 'energy':
-                self.data.append(np.mean(L.energy))
+                self.data.append(np.mean(L.Elist) / self.N**2)
                 self.labely = 'Energy per atom'
             elif var == 'mag sus':
                 self.data.append(self.calcMagSus(L.Mlist, T))
