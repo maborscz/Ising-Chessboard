@@ -35,7 +35,6 @@ class Lattice:
     # Modified the metropolis algorithm for faster convergence. Algorithm
     # probabilistically flips spins that lie on a 'chessboard' pattern, since they
     # do not interact according to the nearest-neighbour assumption in the Ising model
-
     def monteCarlo(self, steps):
 
         self.Mlist = [] # ensemble of magnetisations
