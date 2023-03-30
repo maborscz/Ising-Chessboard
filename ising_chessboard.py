@@ -75,12 +75,13 @@ class Plots:
         self.steps = steps # number of Monte Carlo iterations
         self.label = label # plot label
 
+        
     def calcMagSus(self, array, T):
         av2 = np.mean(array)**2 # (average of M)^2
         av_2 = np.mean(array ** 2) # average of (M^2)
         return (av_2 - av2) / (self.N**2 * T) # magnetic susceptibility per atom
     
-    
+    # plot of experiment variable against temperature
     def tempPlot(self): 
         plt.xlabel(self.labelx)
         plt.ylabel(self.labely)
@@ -88,26 +89,34 @@ class Plots:
         plt.scatter(np.arange(self.t0, self.t1, self.inc), self.data, label=self.label)
         plt.legend()
 
+    # experiment to run, variable can be:
+    # 'mag' for magnetization per atom
+    # 'energy' for energy per atom
+    # 'mag sus' for magnetic susceptibility per atom
     def exp(self, var):
         self.data = []
         for T in np.arange(self.t0, self.t1, self.inc):
+            # create lattice and run Monte Carlo solver for each temperature
             L = Lattice(self.N, T, start=self.start, B=self.B)
             L.monteCarlo(self.steps) 
 
             if var == 'mag':
+                # calculate magentization per atom and append to list of data
                 self.data.append(np.abs(np.mean(L.Mlist)) / self.N**2)
                 self.labely = 'Magnetization per atom'
             elif var == 'energy':
+                # calculate energy per atom and append to list of data
                 self.data.append(np.mean(L.Elist) / self.N**2)
                 self.labely = 'Energy per atom'
             elif var == 'mag sus':
+                # calculate magnetic susceptibility per atom and append to list of data
                 self.data.append(self.calcMagSus(L.Mlist, T))
                 self.labely='Magnetic susceptibility per atom' 
 
         self.labelx = 'Temperature in units of kB/J'
         self.tempPlot()
 
-
+    # spin map plot
     def latticePlot(self, T):
         L = Lattice(self.N, T, start=self.start, B=self.B)
         L.monteCarlo(self.steps)
